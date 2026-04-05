@@ -4,6 +4,9 @@ import {
   clampDisplayedExponent,
   clampPaidSpots,
   defaultPreset,
+  maxBuyIn,
+  maxEntrants,
+  maxPaidSpots,
   minDisplayedExponent,
   readInitialPreset,
   sanitizeBuyIn,
@@ -20,6 +23,10 @@ describe("clampPaidSpots", () => {
   it("never returns more than the number of entrants", () => {
     expect(clampPaidSpots(10, 4)).toBe(4);
   });
+
+  it("never returns more than the maximum supported payout rows", () => {
+    expect(clampPaidSpots(maxPaidSpots + 500, maxEntrants)).toBe(maxPaidSpots);
+  });
 });
 
 describe("clampDisplayedExponent", () => {
@@ -33,17 +40,20 @@ describe("sanitizers", () => {
     expect(sanitizeEntrants(0)).toBe(1);
     expect(sanitizeEntrants(12.9)).toBe(12);
     expect(sanitizeEntrants(Infinity)).toBe(defaultPreset.entrants);
+    expect(sanitizeEntrants(maxEntrants + 1)).toBe(maxEntrants);
   });
 
   it("sanitizes buy-in to a minimum positive integer", () => {
     expect(sanitizeBuyIn(-50)).toBe(1);
     expect(sanitizeBuyIn(25.7)).toBe(25);
     expect(sanitizeBuyIn(NaN)).toBe(defaultPreset.buyIn);
+    expect(sanitizeBuyIn(maxBuyIn + 1)).toBe(maxBuyIn);
   });
 
   it("sanitizes paid spots against entrant count", () => {
     expect(sanitizePaidSpots(300, 10)).toBe(10);
     expect(sanitizePaidSpots(0, 10)).toBe(1);
+    expect(sanitizePaidSpots(maxPaidSpots + 1, maxEntrants)).toBe(maxPaidSpots);
   });
 
   it("sanitizes exponent values", () => {
@@ -61,7 +71,7 @@ describe("calculatePayouts", () => {
     expect(allocated).toBe(3800);
   });
 
-  it("creates equal payouts when the exponent is zero", () => {
+  it("clamps a zero exponent to the minimum displayed top-heaviness", () => {
     const result = calculatePayouts(12, 50, 3, 0);
 
     expect(result.payouts[0].payout).toBeGreaterThan(result.payouts[1].payout);
@@ -129,9 +139,9 @@ describe("readInitialPreset", () => {
   it("sanitizes extreme and invalid query string values", () => {
     expect(readInitialPreset("?entrants=999999&buyIn=999999999&paidSpots=999999&exponent=Infinity")).toEqual({
       name: "Custom",
-      entrants: 999999,
-      buyIn: 999999999,
-      paidSpots: 999999,
+      entrants: maxEntrants,
+      buyIn: maxBuyIn,
+      paidSpots: maxPaidSpots,
       exponent: defaultPreset.exponent,
     });
   });

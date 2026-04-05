@@ -29,10 +29,17 @@ export const defaultPreset: Preset = {
 export const minDisplayedExponent = 0.15;
 export const maxDisplayedExponent = 2;
 export const minEntrants = 1;
+export const maxEntrants = 10_000;
 export const minBuyIn = 1;
+export const maxBuyIn = 1_000_000;
+export const maxPaidSpots = 1_000;
 
 export function clampPaidSpots(paidSpots: number, entrants: number): number {
-  return Math.min(Math.max(1, Math.floor(paidSpots)), sanitizeEntrants(entrants));
+  return Math.min(
+    Math.max(1, Math.floor(paidSpots)),
+    sanitizeEntrants(entrants),
+    maxPaidSpots,
+  );
 }
 
 export function clampDisplayedExponent(exponent: number): number {
@@ -52,7 +59,7 @@ export function sanitizeEntrants(value: number): number {
     return defaultPreset.entrants;
   }
 
-  return Math.max(minEntrants, Math.floor(value));
+  return Math.min(Math.max(minEntrants, Math.floor(value)), maxEntrants);
 }
 
 export function sanitizeBuyIn(value: number): number {
@@ -60,7 +67,7 @@ export function sanitizeBuyIn(value: number): number {
     return defaultPreset.buyIn;
   }
 
-  return Math.max(minBuyIn, Math.floor(value));
+  return Math.min(Math.max(minBuyIn, Math.floor(value)), maxBuyIn);
 }
 
 export function sanitizePaidSpots(value: number, entrants: number): number {

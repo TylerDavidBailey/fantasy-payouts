@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   calculatePayouts,
+  maxBuyIn,
   maxDisplayedExponent,
+  maxEntrants,
+  maxPaidSpots,
   minDisplayedExponent,
   readInitialPreset,
   sanitizeBuyIn,
@@ -215,6 +218,7 @@ function App(): JSX.Element {
               <input
                 type="number"
                 min="1"
+                max={String(maxEntrants)}
                 value={entrantsInput}
                 onChange={(event) => handleEntrantsChange(event.target.value)}
                 onBlur={handleEntrantsBlur}
@@ -226,6 +230,7 @@ function App(): JSX.Element {
               <input
                 type="number"
                 min="1"
+                max={String(maxBuyIn)}
                 step="1"
                 value={buyInInput}
                 onChange={(event) => handleBuyInChange(event.target.value)}
@@ -238,7 +243,7 @@ function App(): JSX.Element {
               <input
                 type="number"
                 min="1"
-                max={entrants}
+                max={String(Math.min(entrants, maxPaidSpots))}
                 value={paidSpotsInput}
                 onChange={(event) => handlePaidSpotsChange(event.target.value)}
                 onBlur={handlePaidSpotsBlur}

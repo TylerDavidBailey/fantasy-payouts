@@ -6,6 +6,8 @@ formats.
 
 It stays fully client-side, updates results instantly, and encodes the current
 calculator state in the URL so a payout setup can be shared with a link.
+To keep the calculator responsive and share links safe to open, the app clamps
+extreme numeric inputs to supported maximum values.
 
 ## Features
 
