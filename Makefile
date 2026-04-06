@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help install dev lint typecheck test test-watch build preview check ci clean
+.PHONY: help install dev lint typecheck test test-watch build preview check clean
 
 help:
 	@printf "Available targets:\n"
@@ -13,7 +13,6 @@ help:
 	@printf "  %-12s %s\n" "build" "Create the production build"
 	@printf "  %-12s %s\n" "preview" "Serve the production build locally"
 	@printf "  %-12s %s\n" "check" "Run the full local quality gate"
-	@printf "  %-12s %s\n" "ci" "Install dependencies and run the CI quality gate"
 	@printf "  %-12s %s\n" "clean" "Remove build output and TypeScript build metadata"
 
 install:
@@ -42,8 +41,6 @@ preview:
 
 check:
 	npm run check
-
-ci: install check
 
 clean:
 	rm -rf dist *.tsbuildinfo
