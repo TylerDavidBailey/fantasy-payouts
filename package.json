@@ -1,7 +1,7 @@
 {
   "name": "fantasy-payouts",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Static payout calculator for fantasy leagues, pools, and contests.",
   "type": "module",
   "engines": {
