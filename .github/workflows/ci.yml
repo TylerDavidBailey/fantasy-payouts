@@ -9,6 +9,30 @@ permissions:
   contents: read
 
 jobs:
+  pr-title:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          regex='^(feat|fix|chore|docs|refactor|perf|test|build|ci|revert|style)(\([a-z0-9._/-]+\))?!?: .+'
+
+          if [[ "$PR_TITLE" =~ $regex ]]; then
+            echo "PR title is valid: $PR_TITLE"
+            exit 0
+          fi
+
+          echo "Invalid PR title: $PR_TITLE"
+          echo "Expected format: type(scope): summary or type: summary"
+          echo "Examples:"
+          echo "  feat: add release workflow"
+          echo "  fix(ci): correct release permissions"
+          echo "  feat!: change versioning strategy"
+          exit 1
+
   checks:
     runs-on: ubuntu-latest
 
