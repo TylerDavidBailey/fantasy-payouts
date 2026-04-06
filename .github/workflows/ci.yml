@@ -23,7 +23,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: make install
 
       - name: Quality gate
-        run: npm run check
+        run: make check
