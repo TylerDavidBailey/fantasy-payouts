@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help install dev lint typecheck test test-watch build preview check clean
+.PHONY: help install dev lint typecheck test test-watch security build preview check clean
 
 help:
 	@printf "Available targets:\n"
@@ -10,6 +10,7 @@ help:
 	@printf "  %-12s %s\n" "typecheck" "Run the TypeScript compiler in check mode"
 	@printf "  %-12s %s\n" "test" "Run the unit test suite once"
 	@printf "  %-12s %s\n" "test-watch" "Run tests in watch mode"
+	@printf "  %-12s %s\n" "security" "Audit dependencies for known vulnerabilities"
 	@printf "  %-12s %s\n" "build" "Create the production build"
 	@printf "  %-12s %s\n" "preview" "Serve the production build locally"
 	@printf "  %-12s %s\n" "check" "Run the full local quality gate"
@@ -32,6 +33,9 @@ test:
 
 test-watch:
 	npm run test:watch
+
+security:
+	npm run security
 
 build:
 	npm run build

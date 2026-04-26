@@ -94,18 +94,22 @@ export function calculatePayouts(
     (_, index) => 1 / Math.pow(index + 1, safeExponent),
   );
   const weightSum = weights.reduce((sum, weight) => sum + weight, 0);
-
-  let remaining = totalPool;
+  const minimumPayout = totalPool >= safeSpots ? 1 : 0;
+  const guaranteedPool = minimumPayout * safeSpots;
+  const weightedPool = totalPool - guaranteedPool;
+  const basePayouts = weights.map((weight) =>
+    Math.floor(weightedPool * (weight / weightSum)) + minimumPayout,
+  );
+  const remainder =
+    totalPool - basePayouts.reduce((sum, payout) => sum + payout, 0);
 
   const payouts = weights.map((weight, index) => {
-    const percentage = weight / weightSum;
-    const payout = index === safeSpots - 1 ? remaining : Math.round(totalPool * percentage);
-    remaining -= payout;
+    const payout = basePayouts[index] + (index < remainder ? 1 : 0);
 
     return {
       place: index + 1,
       weight,
-      percentage,
+      percentage: totalPool === 0 ? 0 : payout / totalPool,
       payout,
     };
   });
@@ -123,7 +127,7 @@ export function readInitialPreset(search: string): Preset {
   const buyIn = buyInValue === null ? defaultPreset.buyIn : sanitizeBuyIn(Number(buyInValue));
   const paidSpotsValue = params.get("paidSpots");
   const paidSpots = paidSpotsValue === null
-    ? defaultPreset.paidSpots
+    ? sanitizePaidSpots(defaultPreset.paidSpots, entrants)
     : sanitizePaidSpots(Number(paidSpotsValue), entrants);
   const exponentValue = params.get("exponent");
   const exponent = exponentValue === null
