@@ -98,6 +98,25 @@ describe("calculatePayouts", () => {
     expect(result.payouts).toHaveLength(1);
   });
 
+  it("keeps rounded payouts nonnegative and descending", () => {
+    const result = calculatePayouts(7, 3, 6, 2);
+    const payouts = result.payouts.map((row) => row.payout);
+
+    expect(payouts.reduce((sum, payout) => sum + payout, 0)).toBe(result.totalPool);
+    expect(payouts.every((payout) => payout > 0)).toBe(true);
+
+    for (let index = 1; index < payouts.length; index += 1) {
+      expect(payouts[index]).toBeLessThanOrEqual(payouts[index - 1]);
+    }
+  });
+
+  it("does not push rounding remainder into lower places", () => {
+    const result = calculatePayouts(4, 1, 3, minDisplayedExponent);
+    const payouts = result.payouts.map((row) => row.payout);
+
+    expect(payouts).toEqual([2, 1, 1]);
+  });
+
   it("sanitizes extreme and invalid exponent values before calculating", () => {
     const low = calculatePayouts(10, 100, 3, -100);
     const invalid = calculatePayouts(10, 100, 3, Number.NaN);
@@ -131,6 +150,16 @@ describe("readInitialPreset", () => {
       name: "Custom",
       entrants: 1,
       buyIn: 1,
+      paidSpots: 1,
+      exponent: defaultPreset.exponent,
+    });
+  });
+
+  it("clamps default paid spots when URL entrants are below the default", () => {
+    expect(readInitialPreset("?entrants=1")).toEqual({
+      name: "Custom",
+      entrants: 1,
+      buyIn: defaultPreset.buyIn,
       paidSpots: 1,
       exponent: defaultPreset.exponent,
     });

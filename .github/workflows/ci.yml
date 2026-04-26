@@ -49,5 +49,5 @@ jobs:
       - name: Install dependencies
         run: make install
 
-      - name: Quality gate
+      - name: Quality and security gate
         run: make check
