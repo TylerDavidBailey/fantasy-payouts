@@ -33,8 +33,9 @@ Run `make` with no arguments to list all targets, including `test-watch`,
 
 ## Releases and deployment
 
-Merges to `main` run CI, then semantic-release cuts a version from
-[Conventional Commit](https://www.conventionalcommits.org/) messages
-(`feat: …`, `fix: …`, `feat!: …`), tags it, publishes a GitHub release, and
-updates `CHANGELOG.md`. A successful CI run on `main` also deploys the app to
-GitHub Pages.
+Merges to `main` run CI, then semantic-release calculates the next version
+from [Conventional Commit](https://www.conventionalcommits.org/) messages
+(`feat: …`, `fix: …`, `feat!: …`), pushes the `vX.Y.Z` tag, and publishes a
+GitHub release with generated notes. Nothing is committed back to `main`, so
+release notes live on the GitHub Releases page. A successful CI run on `main`
+also deploys the app to GitHub Pages.
