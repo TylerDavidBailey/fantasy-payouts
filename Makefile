@@ -1,50 +1,43 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help install dev lint typecheck test test-watch security build preview check clean
+.PHONY: help install dev lint typecheck test test-watch coverage security build preview check clean
 
-help:
+help: ## Show available targets
 	@printf "Available targets:\n"
-	@printf "  %-12s %s\n" "install" "Install project dependencies with npm ci"
-	@printf "  %-12s %s\n" "dev" "Start the Vite development server"
-	@printf "  %-12s %s\n" "lint" "Run ESLint with warnings treated as failures"
-	@printf "  %-12s %s\n" "typecheck" "Run the TypeScript compiler in check mode"
-	@printf "  %-12s %s\n" "test" "Run the unit test suite once"
-	@printf "  %-12s %s\n" "test-watch" "Run tests in watch mode"
-	@printf "  %-12s %s\n" "security" "Audit dependencies for known vulnerabilities"
-	@printf "  %-12s %s\n" "build" "Create the production build"
-	@printf "  %-12s %s\n" "preview" "Serve the production build locally"
-	@printf "  %-12s %s\n" "check" "Run the full local quality gate"
-	@printf "  %-12s %s\n" "clean" "Remove build output and TypeScript build metadata"
+	@awk 'BEGIN { FS = ":.*## " } /^[a-zA-Z-]+:.*## / { printf "  %-12s %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 
-install:
+install: ## Install project dependencies with npm ci
 	npm ci
 
-dev:
+dev: ## Start the Vite development server
 	npm run dev
 
-lint:
+lint: ## Run ESLint with warnings treated as failures
 	npm run lint
 
-typecheck:
+typecheck: ## Run the TypeScript compiler in check mode
 	npm run typecheck
 
-test:
+test: ## Run the unit test suite once
 	npm run test
 
-test-watch:
+test-watch: ## Run tests in watch mode
 	npm run test:watch
 
-security:
+coverage: ## Run tests with a coverage report
+	npm run test:coverage
+
+security: ## Audit dependencies for known vulnerabilities
 	npm run security
 
-build:
+build: ## Create the production build
 	npm run build
 
-preview:
+preview: ## Serve the production build locally
 	npm run preview
 
-check:
+check: ## Run the full local quality gate
 	npm run check
 
-clean:
-	rm -rf dist *.tsbuildinfo
+clean: ## Remove build output, coverage, and TypeScript build metadata
+	rm -rf dist coverage *.tsbuildinfo
