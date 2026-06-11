@@ -1,29 +1,40 @@
 # Fantasy Payouts
 
-This repository contains a small web app for calculating payout splits for
-fantasy leagues, pools, and similar contests.
+A small client-side web app for calculating payout splits for fantasy leagues,
+pools, and similar contests. Live at
+[tylerdavidbailey.github.io/fantasy-payouts](https://tylerdavidbailey.github.io/fantasy-payouts/).
 
-The app is fully client-side and designed to make it easy to adjust common
-payout inputs and see the resulting prize distribution immediately. It also
-supports shareable calculator states, making it useful for league organizers or
-anyone setting up prize structures.
+Set the number of entries, buy-in, and payout spots, then tune how top-heavy
+the prize curve is. Payouts are weighted with `1 / place^k` and always
+distribute the full pool in whole dollars, descending by place. The current
+calculator state lives in the URL, so any configuration can be shared as a
+link.
 
-The project is built as a lightweight React and TypeScript application with
-Vite.
+Built with React, TypeScript, and Vite. No backend, no data stored.
 
-## Releases
+## Development
 
-This repository uses Conventional Commits plus semantic-release.
+Requires Node 22.14+.
 
-Merge commits to `main` with conventional messages such as:
+```sh
+make install   # install dependencies (npm ci)
+make dev       # start the Vite dev server
+make check     # full quality gate: lint, typecheck, test, build, audit
+```
 
-- `feat: add payout presets`
-- `fix: clamp invalid payout inputs`
-- `feat!: change payout calculation defaults`
+Run `make` with no arguments to list all targets, including `test-watch`,
+`coverage`, and `preview`.
 
-After CI succeeds on `main`, the release workflow automatically:
+### Layout
 
-- calculates the next version from commit history
-- creates a `vX.Y.Z` git tag
-- publishes a GitHub release
-- updates `CHANGELOG.md` and the package version in-repo
+- `src/lib/` — pure payout math, formatting, and URL state (fully unit tested)
+- `src/components/` — presentational React components
+- `src/App.tsx` — state and composition
+
+## Releases and deployment
+
+Merges to `main` run CI, then semantic-release cuts a version from
+[Conventional Commit](https://www.conventionalcommits.org/) messages
+(`feat: …`, `fix: …`, `feat!: …`), tags it, publishes a GitHub release, and
+updates `CHANGELOG.md`. A successful CI run on `main` also deploys the app to
+GitHub Pages.

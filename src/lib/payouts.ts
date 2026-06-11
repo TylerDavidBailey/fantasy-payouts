@@ -1,14 +1,16 @@
-export type Preset = {
-  name: string;
+export type PayoutConfig = {
   entrants: number;
   buyIn: number;
   paidSpots: number;
   exponent: number;
 };
 
+export type Preset = PayoutConfig & {
+  name: string;
+};
+
 export type PayoutRow = {
   place: number;
-  weight: number;
   percentage: number;
   payout: number;
 };
@@ -18,14 +20,6 @@ export type PayoutCalculationResult = {
   payouts: PayoutRow[];
 };
 
-export const defaultPreset: Preset = {
-  name: "Custom",
-  entrants: 10,
-  buyIn: 100,
-  paidSpots: 3,
-  exponent: 1.1,
-};
-
 export const minDisplayedExponent = 0.15;
 export const maxDisplayedExponent = 2;
 export const minEntrants = 1;
@@ -33,6 +27,20 @@ export const maxEntrants = 10_000;
 export const minBuyIn = 1;
 export const maxBuyIn = 1_000_000;
 export const maxPaidSpots = 1_000;
+
+export const defaultConfig: PayoutConfig = {
+  entrants: 10,
+  buyIn: 100,
+  paidSpots: 3,
+  exponent: 1.1,
+};
+
+export const presets: Preset[] = [
+  { name: "10-team league", entrants: 10, buyIn: 100, paidSpots: 3, exponent: 1.1 },
+  { name: "12-team league", entrants: 12, buyIn: 50, paidSpots: 4, exponent: 1.1 },
+  { name: "Office pool", entrants: 25, buyIn: 20, paidSpots: 5, exponent: 0.8 },
+  { name: "Big tournament", entrants: 100, buyIn: 25, paidSpots: 10, exponent: 1.4 },
+];
 
 export function clampPaidSpots(paidSpots: number, entrants: number): number {
   return Math.min(
@@ -48,7 +56,7 @@ export function clampDisplayedExponent(exponent: number): number {
 
 export function sanitizeExponent(value: number): number {
   if (!Number.isFinite(value)) {
-    return defaultPreset.exponent;
+    return defaultConfig.exponent;
   }
 
   return clampDisplayedExponent(value);
@@ -56,7 +64,7 @@ export function sanitizeExponent(value: number): number {
 
 export function sanitizeEntrants(value: number): number {
   if (!Number.isFinite(value)) {
-    return defaultPreset.entrants;
+    return defaultConfig.entrants;
   }
 
   return Math.min(Math.max(minEntrants, Math.floor(value)), maxEntrants);
@@ -64,7 +72,7 @@ export function sanitizeEntrants(value: number): number {
 
 export function sanitizeBuyIn(value: number): number {
   if (!Number.isFinite(value)) {
-    return defaultPreset.buyIn;
+    return defaultConfig.buyIn;
   }
 
   return Math.min(Math.max(minBuyIn, Math.floor(value)), maxBuyIn);
@@ -72,73 +80,52 @@ export function sanitizeBuyIn(value: number): number {
 
 export function sanitizePaidSpots(value: number, entrants: number): number {
   if (!Number.isFinite(value)) {
-    return clampPaidSpots(defaultPreset.paidSpots, entrants);
+    return clampPaidSpots(defaultConfig.paidSpots, entrants);
   }
 
   return clampPaidSpots(value, entrants);
 }
 
-export function calculatePayouts(
-  entrants: number,
-  buyIn: number,
-  paidSpots: number,
-  exponent: number,
-): PayoutCalculationResult {
-  const safeEntrants = sanitizeEntrants(entrants);
-  const safeBuyIn = sanitizeBuyIn(buyIn);
-  const safeExponent = sanitizeExponent(exponent);
-  const totalPool = Math.max(0, Math.round(safeEntrants * safeBuyIn));
-  const safeSpots = sanitizePaidSpots(paidSpots, safeEntrants);
+export function sanitizeConfig(config: PayoutConfig): PayoutConfig {
+  const entrants = sanitizeEntrants(config.entrants);
+
+  return {
+    entrants,
+    buyIn: sanitizeBuyIn(config.buyIn),
+    paidSpots: sanitizePaidSpots(config.paidSpots, entrants),
+    exponent: sanitizeExponent(config.exponent),
+  };
+}
+
+export function calculatePayouts(config: PayoutConfig): PayoutCalculationResult {
+  const { entrants, buyIn, paidSpots, exponent } = sanitizeConfig(config);
+  const totalPool = entrants * buyIn;
   const weights = Array.from(
-    { length: safeSpots },
-    (_, index) => 1 / Math.pow(index + 1, safeExponent),
+    { length: paidSpots },
+    (_, index) => 1 / Math.pow(index + 1, exponent),
   );
   const weightSum = weights.reduce((sum, weight) => sum + weight, 0);
-  const minimumPayout = totalPool >= safeSpots ? 1 : 0;
-  const guaranteedPool = minimumPayout * safeSpots;
-  const weightedPool = totalPool - guaranteedPool;
-  const basePayouts = weights.map((weight) =>
-    Math.floor(weightedPool * (weight / weightSum)) + minimumPayout,
-  );
-  const remainder =
-    totalPool - basePayouts.reduce((sum, payout) => sum + payout, 0);
 
-  const payouts = weights.map((weight, index) => {
-    const payout = basePayouts[index] + (index < remainder ? 1 : 0);
+  // Guarantee every paid spot at least $1, then split the rest by weight.
+  // Sanitized inputs ensure totalPool >= paidSpots, so weightedPool >= 0.
+  const weightedPool = totalPool - paidSpots;
+  const basePayouts = weights.map(
+    (weight) => Math.floor(weightedPool * (weight / weightSum)) + 1,
+  );
+
+  // Hand leftover dollars from flooring to the top places, one each, so the
+  // distribution stays descending.
+  const remainder = totalPool - basePayouts.reduce((sum, payout) => sum + payout, 0);
+
+  const payouts = basePayouts.map((basePayout, index) => {
+    const payout = basePayout + (index < remainder ? 1 : 0);
 
     return {
       place: index + 1,
-      weight,
-      percentage: totalPool === 0 ? 0 : payout / totalPool,
+      percentage: payout / totalPool,
       payout,
     };
   });
 
   return { totalPool, payouts };
-}
-
-export function readInitialPreset(search: string): Preset {
-  const params = new URLSearchParams(search);
-
-  const entrantsValue = params.get("entrants");
-  const entrants =
-    entrantsValue === null ? defaultPreset.entrants : sanitizeEntrants(Number(entrantsValue));
-  const buyInValue = params.get("buyIn");
-  const buyIn = buyInValue === null ? defaultPreset.buyIn : sanitizeBuyIn(Number(buyInValue));
-  const paidSpotsValue = params.get("paidSpots");
-  const paidSpots = paidSpotsValue === null
-    ? sanitizePaidSpots(defaultPreset.paidSpots, entrants)
-    : sanitizePaidSpots(Number(paidSpotsValue), entrants);
-  const exponentValue = params.get("exponent");
-  const exponent = exponentValue === null
-    ? defaultPreset.exponent
-    : sanitizeExponent(Number(exponentValue));
-
-  return {
-    name: defaultPreset.name,
-    entrants,
-    buyIn,
-    paidSpots,
-    exponent,
-  };
 }
