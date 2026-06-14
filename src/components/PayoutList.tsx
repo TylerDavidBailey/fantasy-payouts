@@ -5,18 +5,14 @@ type PayoutListProps = {
   payouts: PayoutRow[];
 };
 
-const podiumClasses = ["is-gold", "is-silver", "is-bronze"];
-
 function PayoutList({ payouts }: PayoutListProps): JSX.Element {
   const topPayout = payouts[0]?.payout ?? 0;
 
   return (
     <ol className="payout-list" aria-label="Payout results">
       {payouts.map((row, index) => (
-        <li key={row.place} className="payout-row">
-          <span className={`payout-place ${podiumClasses[index] ?? ""}`.trim()}>
-            {formatPlace(row.place)}
-          </span>
+        <li key={row.place} className={index === 0 ? "payout-row is-top" : "payout-row"}>
+          <span className="payout-place">{formatPlace(row.place)}</span>
           <span className="payout-bar">
             <span
               className="payout-fill"

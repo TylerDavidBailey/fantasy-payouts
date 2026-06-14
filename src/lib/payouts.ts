@@ -5,10 +5,6 @@ export type PayoutConfig = {
   exponent: number;
 };
 
-export type Preset = PayoutConfig & {
-  name: string;
-};
-
 export type PayoutRow = {
   place: number;
   percentage: number;
@@ -34,13 +30,6 @@ export const defaultConfig: PayoutConfig = {
   paidSpots: 3,
   exponent: 1.1,
 };
-
-export const presets: Preset[] = [
-  { name: "10-team league", entrants: 10, buyIn: 100, paidSpots: 3, exponent: 1.1 },
-  { name: "12-team league", entrants: 12, buyIn: 50, paidSpots: 4, exponent: 1.1 },
-  { name: "Office pool", entrants: 25, buyIn: 20, paidSpots: 5, exponent: 0.8 },
-  { name: "Big tournament", entrants: 100, buyIn: 25, paidSpots: 10, exponent: 1.4 },
-];
 
 export function clampPaidSpots(paidSpots: number, entrants: number): number {
   return Math.min(

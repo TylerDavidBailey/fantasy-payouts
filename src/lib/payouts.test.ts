@@ -8,7 +8,6 @@ import {
   maxEntrants,
   maxPaidSpots,
   minDisplayedExponent,
-  presets,
   sanitizeBuyIn,
   sanitizeConfig,
   sanitizeEntrants,
@@ -76,16 +75,6 @@ describe("sanitizers", () => {
       paidSpots: 4,
       exponent: defaultConfig.exponent,
     });
-  });
-});
-
-describe("presets", () => {
-  it("are already sanitized", () => {
-    for (const preset of presets) {
-      const { name: _name, ...presetConfig } = preset;
-
-      expect(sanitizeConfig(presetConfig)).toEqual(presetConfig);
-    }
   });
 });
 

@@ -23,13 +23,15 @@ describe("PayoutList", () => {
     expect(rows[3]).toHaveTextContent("$100");
   });
 
-  it("highlights only the podium places", () => {
+  it("marks only the first row as the top finisher", () => {
     render(<PayoutList payouts={payouts} />);
 
-    expect(screen.getByText("1st")).toHaveClass("is-gold");
-    expect(screen.getByText("2nd")).toHaveClass("is-silver");
-    expect(screen.getByText("3rd")).toHaveClass("is-bronze");
-    expect(screen.getByText("4th").className.trim()).toBe("payout-place");
+    const rows = screen.getAllByRole("listitem");
+
+    expect(rows[0]).toHaveClass("is-top");
+    expect(rows[1]).not.toHaveClass("is-top");
+    expect(rows[2]).not.toHaveClass("is-top");
+    expect(rows[3]).not.toHaveClass("is-top");
   });
 
   it("scales bars relative to the first-place payout", () => {

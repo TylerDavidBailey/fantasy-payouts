@@ -19,7 +19,7 @@ describe("ShareButton", () => {
     stubClipboard(writeText);
     render(<ShareButton />);
 
-    fireEvent.click(screen.getByRole("button", { name: /copy share link/i }));
+    fireEvent.click(screen.getByRole("button", { name: /share link/i }));
 
     expect(await screen.findByRole("button", { name: /link copied/i })).toBeInTheDocument();
     expect(writeText).toHaveBeenCalledWith(window.location.href);
@@ -29,7 +29,7 @@ describe("ShareButton", () => {
     stubClipboard(vi.fn(() => Promise.reject(new Error("denied"))));
     render(<ShareButton />);
 
-    fireEvent.click(screen.getByRole("button", { name: /copy share link/i }));
+    fireEvent.click(screen.getByRole("button", { name: /share link/i }));
 
     expect(await screen.findByRole("button", { name: /copy failed/i })).toBeInTheDocument();
   });
@@ -49,6 +49,6 @@ describe("ShareButton", () => {
       vi.advanceTimersByTime(1800);
     });
 
-    expect(button).toHaveTextContent("Copy share link");
+    expect(button).toHaveTextContent("Share link");
   });
 });
