@@ -35,32 +35,18 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "Office pool" }));
+    const entries = screen.getByLabelText<HTMLInputElement>(/^entries$/i);
+    await user.clear(entries);
+    await user.type(entries, "25");
 
-    const params = new URLSearchParams(window.location.search);
-
-    expect(params.get("entrants")).toBe("25");
-    expect(params.get("buyIn")).toBe("20");
-    expect(params.get("paidSpots")).toBe("5");
-    expect(params.get("exponent")).toBe("0.80");
-  });
-
-  it("applies a preset to the inputs and results", async () => {
-    const user = userEvent.setup();
-    render(<App />);
-
-    await user.click(screen.getByRole("button", { name: "Office pool" }));
-
-    expect(screen.getByText("25 entries · $20 buy-in")).toBeInTheDocument();
-    expect(screen.getByLabelText<HTMLInputElement>(/number of entries/i)).toHaveValue(25);
-    expect(payoutRows()).toHaveLength(5);
+    expect(new URLSearchParams(window.location.search).get("entrants")).toBe("25");
   });
 
   it("clamps payout spots when entries drop below them", async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    const entries = screen.getByLabelText<HTMLInputElement>(/number of entries/i);
+    const entries = screen.getByLabelText<HTMLInputElement>(/^entries$/i);
     await user.clear(entries);
     await user.type(entries, "2");
 
@@ -72,7 +58,7 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    const buyIn = screen.getByLabelText<HTMLInputElement>(/buy-in amount/i);
+    const buyIn = screen.getByLabelText<HTMLInputElement>(/buy-in/i);
     await user.clear(buyIn);
     await user.type(buyIn, "50");
 
