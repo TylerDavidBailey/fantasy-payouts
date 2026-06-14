@@ -1,0 +1,17 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+
+# Test coverage
+coverage
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
