@@ -87,7 +87,9 @@ function ShareButton(): JSX.Element {
       }}
     >
       {copyStatus === "success" ? <CheckIcon /> : <ShareIcon />}
-      <span className="share-fab-status">{copyStatusLabel[copyStatus]}</span>
+      <span className="share-fab-status" role="status">
+        {copyStatusLabel[copyStatus]}
+      </span>
     </button>
   );
 }
