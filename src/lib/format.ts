@@ -9,6 +9,11 @@ export function formatCurrency(value: number): string {
 }
 
 export function formatPercent(value: number): string {
+  // Shares below 0.05% would round to a misleading "0.0%".
+  if (value > 0 && value < 0.0005) {
+    return "<0.1%";
+  }
+
   return `${(value * 100).toFixed(1)}%`;
 }
 

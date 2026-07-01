@@ -13,6 +13,12 @@ describe("formatPercent", () => {
     expect(formatPercent(0.5)).toBe("50.0%");
     expect(formatPercent(0.333)).toBe("33.3%");
   });
+
+  it("never shows a nonzero share as 0.0%", () => {
+    expect(formatPercent(0.0004)).toBe("<0.1%");
+    expect(formatPercent(0.0005)).toBe("0.1%");
+    expect(formatPercent(0)).toBe("0.0%");
+  });
 });
 
 describe("formatPlace", () => {
