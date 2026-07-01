@@ -25,6 +25,15 @@ describe("ShareButton", () => {
     expect(writeText).toHaveBeenCalledWith(window.location.href);
   });
 
+  it("announces the copy result via a live region", async () => {
+    stubClipboard(vi.fn(() => Promise.resolve()));
+    render(<ShareButton />);
+
+    fireEvent.click(screen.getByRole("button", { name: /share link/i }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent("Link copied");
+  });
+
   it("shows an error state when the clipboard write fails", async () => {
     stubClipboard(vi.fn(() => Promise.reject(new Error("denied"))));
     render(<ShareButton />);
