@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import { useCopyStatus, type CopyStatus } from "./useCopyStatus";
 
 const copyStatusLabel: Record<CopyStatus, string> = {
