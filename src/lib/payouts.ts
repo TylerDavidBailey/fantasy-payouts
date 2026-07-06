@@ -64,7 +64,7 @@ export function sanitizeBuyIn(value: number): number {
     return defaultConfig.buyIn;
   }
 
-  return Math.min(Math.max(minBuyIn, Math.floor(value)), maxBuyIn);
+  return Math.min(Math.max(minBuyIn, Math.round(value * 100) / 100), maxBuyIn);
 }
 
 export function sanitizePaidSpots(value: number, entrants: number): number {
@@ -88,33 +88,36 @@ export function sanitizeConfig(config: PayoutConfig): PayoutConfig {
 
 export function calculatePayouts(config: PayoutConfig): PayoutCalculationResult {
   const { entrants, buyIn, paidSpots, exponent } = sanitizeConfig(config);
-  const totalPool = entrants * buyIn;
+  // All money math happens in integer cents so payouts sum exactly to the pool.
+  const buyInCents = Math.round(buyIn * 100);
+  const poolCents = entrants * buyInCents;
   const weights = Array.from(
     { length: paidSpots },
     (_, index) => 1 / Math.pow(index + 1, exponent),
   );
   const weightSum = weights.reduce((sum, weight) => sum + weight, 0);
 
-  // Guarantee every paid spot at least $1, then split the rest by weight.
-  // Sanitized inputs ensure totalPool >= paidSpots, so weightedPool >= 0.
-  const weightedPool = totalPool - paidSpots;
-  const basePayouts = weights.map(
-    (weight) => Math.floor(weightedPool * (weight / weightSum)) + 1,
+  // Guarantee every paid spot at least $1 (100 cents), then split the rest by
+  // weight. Sanitized inputs ensure buyIn >= $1 and paidSpots <= entrants, so
+  // weightedPoolCents >= 0.
+  const weightedPoolCents = poolCents - paidSpots * 100;
+  const basePayoutCents = weights.map(
+    (weight) => Math.floor(weightedPoolCents * (weight / weightSum)) + 100,
   );
 
-  // Hand leftover dollars from flooring to the top places, one each, so the
+  // Hand leftover cents from flooring to the top places, one each, so the
   // distribution stays descending.
-  const remainder = totalPool - basePayouts.reduce((sum, payout) => sum + payout, 0);
+  const remainderCents = poolCents - basePayoutCents.reduce((sum, cents) => sum + cents, 0);
 
-  const payouts = basePayouts.map((basePayout, index) => {
-    const payout = basePayout + (index < remainder ? 1 : 0);
+  const payouts = basePayoutCents.map((baseCents, index) => {
+    const payoutCents = baseCents + (index < remainderCents ? 1 : 0);
 
     return {
       place: index + 1,
-      percentage: payout / totalPool,
-      payout,
+      percentage: payoutCents / poolCents,
+      payout: payoutCents / 100,
     };
   });
 
-  return { totalPool, payouts };
+  return { totalPool: poolCents / 100, payouts };
 }

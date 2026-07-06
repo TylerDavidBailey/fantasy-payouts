@@ -2,9 +2,21 @@ import { describe, expect, it } from "vitest";
 import { formatCurrency, formatPercent, formatPlace } from "./format";
 
 describe("formatCurrency", () => {
-  it("formats whole-dollar USD amounts", () => {
+  it("formats whole-dollar USD amounts without decimals", () => {
     expect(formatCurrency(0)).toBe("$0");
+    expect(formatCurrency(500)).toBe("$500");
     expect(formatCurrency(1250)).toBe("$1,250");
+  });
+
+  it("formats fractional amounts with exactly two decimals", () => {
+    expect(formatCurrency(33.33)).toBe("$33.33");
+    expect(formatCurrency(33.3)).toBe("$33.30");
+    expect(formatCurrency(5.5)).toBe("$5.50");
+  });
+
+  it("normalizes floating-point noise to the nearest cent", () => {
+    expect(formatCurrency(499.9999999999)).toBe("$500");
+    expect(formatCurrency(0.1 + 0.2)).toBe("$0.30");
   });
 });
 

@@ -1,11 +1,24 @@
-const currencyFormatter = new Intl.NumberFormat("en-US", {
+const wholeCurrencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
   maximumFractionDigits: 0,
 });
 
+const centsCurrencyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
 export function formatCurrency(value: number): string {
-  return currencyFormatter.format(value);
+  // Show cents only for fractional amounts, always as two digits ("$33.30",
+  // never "$33.3"). Rounding to cents first also normalizes FP noise.
+  const cents = Math.round(value * 100);
+
+  return cents % 100 === 0
+    ? wholeCurrencyFormatter.format(cents / 100)
+    : centsCurrencyFormatter.format(cents / 100);
 }
 
 export function formatPercent(value: number): string {

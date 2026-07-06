@@ -85,6 +85,7 @@ function App(): JSX.Element {
               value={config.buyIn}
               min={minBuyIn}
               max={maxBuyIn}
+              step={0.01}
               prefix="$"
               onCommit={updateBuyIn}
             />

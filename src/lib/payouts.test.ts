@@ -20,6 +20,12 @@ function config(overrides: Partial<PayoutConfig>): PayoutConfig {
   return { ...defaultConfig, ...overrides };
 }
 
+// Sum in integer cents; summing dollar doubles can drift in the last bit even
+// when the underlying cents are exact.
+function sumCents(payouts: number[]): number {
+  return payouts.reduce((sum, payout) => sum + Math.round(payout * 100), 0);
+}
+
 describe("clampPaidSpots", () => {
   it("never returns less than one", () => {
     expect(clampPaidSpots(0, 12)).toBe(1);
@@ -48,9 +54,12 @@ describe("sanitizers", () => {
     expect(sanitizeEntrants(maxEntrants + 1)).toBe(maxEntrants);
   });
 
-  it("sanitizes buy-in to a minimum positive integer", () => {
+  it("sanitizes buy-in to at least a dollar, rounded to the cent", () => {
     expect(sanitizeBuyIn(-50)).toBe(1);
-    expect(sanitizeBuyIn(25.7)).toBe(25);
+    expect(sanitizeBuyIn(0.5)).toBe(1);
+    expect(sanitizeBuyIn(25.7)).toBe(25.7);
+    expect(sanitizeBuyIn(5.554)).toBe(5.55);
+    expect(sanitizeBuyIn(5.556)).toBe(5.56);
     expect(sanitizeBuyIn(NaN)).toBe(defaultConfig.buyIn);
     expect(sanitizeBuyIn(maxBuyIn + 1)).toBe(maxBuyIn);
   });
@@ -83,10 +92,10 @@ describe("calculatePayouts", () => {
     const result = calculatePayouts(
       config({ entrants: 152, buyIn: 25, paidSpots: 12, exponent: 0.9 }),
     );
-    const allocated = result.payouts.reduce((sum, row) => sum + row.payout, 0);
+    const allocated = sumCents(result.payouts.map((row) => row.payout));
 
     expect(result.totalPool).toBe(3800);
-    expect(allocated).toBe(3800);
+    expect(allocated).toBe(380_000);
   });
 
   it("clamps a zero exponent to the minimum displayed top-heaviness", () => {
@@ -124,7 +133,7 @@ describe("calculatePayouts", () => {
     const result = calculatePayouts(config({ entrants: 7, buyIn: 3, paidSpots: 6, exponent: 2 }));
     const payouts = result.payouts.map((row) => row.payout);
 
-    expect(payouts.reduce((sum, payout) => sum + payout, 0)).toBe(result.totalPool);
+    expect(sumCents(payouts)).toBe(Math.round(result.totalPool * 100));
     expect(payouts.every((payout) => payout > 0)).toBe(true);
 
     for (let index = 1; index < payouts.length; index += 1) {
@@ -138,7 +147,18 @@ describe("calculatePayouts", () => {
     );
     const payouts = result.payouts.map((row) => row.payout);
 
-    expect(payouts).toEqual([2, 1, 1]);
+    expect(payouts).toEqual([1.37, 1.33, 1.3]);
+  });
+
+  it("splits a fractional buy-in to exact cents", () => {
+    const result = calculatePayouts(
+      config({ entrants: 3, buyIn: 5.55, paidSpots: 2, exponent: 1.1 }),
+    );
+    const payouts = result.payouts.map((row) => row.payout);
+
+    expect(result.totalPool).toBe(16.65);
+    expect(payouts).toEqual([10.99, 5.66]);
+    expect(sumCents(payouts)).toBe(1665);
   });
 
   it("sanitizes extreme and invalid exponent values before calculating", () => {
@@ -155,6 +175,12 @@ describe("calculatePayouts", () => {
     expect(result.payouts).toEqual([{ place: 1, percentage: 1, payout: 200 }]);
   });
 
+  it("pays the entire fractional pool to first place when only one spot is paid", () => {
+    const result = calculatePayouts(config({ entrants: 20, buyIn: 10.5, paidSpots: 1 }));
+
+    expect(result.payouts).toEqual([{ place: 1, percentage: 1, payout: 210 }]);
+  });
+
   it("handles the maximum supported configuration", () => {
     const result = calculatePayouts({
       entrants: maxEntrants,
@@ -165,19 +191,19 @@ describe("calculatePayouts", () => {
     const payouts = result.payouts.map((row) => row.payout);
 
     expect(payouts).toHaveLength(maxPaidSpots);
-    expect(payouts.reduce((sum, payout) => sum + payout, 0)).toBe(result.totalPool);
+    expect(sumCents(payouts)).toBe(Math.round(result.totalPool * 100));
     expect(payouts.every((payout) => payout >= 1)).toBe(true);
   });
 
   it("allocates the full pool, descending, across a grid of configs", () => {
     for (const entrants of [2, 5, 9, 100]) {
-      for (const buyIn of [1, 7, 250]) {
+      for (const buyIn of [1, 2.5, 5.55, 7, 7.77, 250]) {
         for (const paidSpots of [1, 3, 10]) {
           for (const exponent of [minDisplayedExponent, 1, 2]) {
             const result = calculatePayouts({ entrants, buyIn, paidSpots, exponent });
             const payouts = result.payouts.map((row) => row.payout);
 
-            expect(payouts.reduce((sum, payout) => sum + payout, 0)).toBe(result.totalPool);
+            expect(sumCents(payouts)).toBe(Math.round(result.totalPool * 100));
             expect(payouts.every((payout) => payout >= 1)).toBe(true);
 
             for (let index = 1; index < payouts.length; index += 1) {
