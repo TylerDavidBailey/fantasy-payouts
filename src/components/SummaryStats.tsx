@@ -14,30 +14,18 @@ function SummaryStats({ result, entrants }: SummaryStatsProps): JSX.Element {
   return (
     <dl className="summary-stats">
       <div className="stat">
-        <span className="stat-icon" aria-hidden="true">
-          🏆
-        </span>
         <dt>Prize pool</dt>
         <dd>{formatCurrency(result.totalPool)}</dd>
       </div>
       <div className="stat">
-        <span className="stat-icon" aria-hidden="true">
-          🥇
-        </span>
         <dt>First prize</dt>
         <dd>{formatCurrency(firstPrize)}</dd>
       </div>
       <div className="stat">
-        <span className="stat-icon" aria-hidden="true">
-          💵
-        </span>
         <dt>Min cash</dt>
         <dd>{formatCurrency(minCash)}</dd>
       </div>
       <div className="stat">
-        <span className="stat-icon" aria-hidden="true">
-          📊
-        </span>
         <dt>Field paid</dt>
         <dd>{formatPercent(fieldPaid)}</dd>
       </div>
