@@ -68,6 +68,21 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
+  it("accepts a buy-in with cents", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const buyIn = screen.getByLabelText<HTMLInputElement>(/buy-in/i);
+    await user.clear(buyIn);
+    await user.type(buyIn, "5.50");
+
+    expect(screen.getByText("10 entries · $5.50 buy-in")).toBeInTheDocument();
+    expect(
+      within(screen.getByText("Prize pool").closest("div")!).getByText("$55"),
+    ).toBeInTheDocument();
+    expect(new URLSearchParams(window.location.search).get("buyIn")).toBe("5.5");
+  });
+
   it("recalculates when the payout curve changes", () => {
     render(<App />);
 

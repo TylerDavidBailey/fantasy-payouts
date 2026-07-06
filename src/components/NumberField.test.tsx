@@ -32,6 +32,28 @@ describe("NumberField", () => {
     expect(screen.getByText("$")).toBeInTheDocument();
   });
 
+  it("renders an optional step attribute", () => {
+    const { input } = renderField({ step: 0.01 });
+
+    expect(input).toHaveAttribute("step", "0.01");
+  });
+
+  it("leaves the step attribute off by default", () => {
+    const { input } = renderField();
+
+    expect(input).not.toHaveAttribute("step");
+  });
+
+  it("commits decimal values", async () => {
+    const user = userEvent.setup();
+    const { onCommit, input } = renderField({ step: 0.01 });
+
+    await user.clear(input);
+    await user.type(input, "5.5");
+
+    expect(onCommit).toHaveBeenLastCalledWith(5.5);
+  });
+
   it("commits every parseable value while typing", async () => {
     const user = userEvent.setup();
     const { onCommit, input } = renderField();

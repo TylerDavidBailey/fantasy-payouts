@@ -5,6 +5,7 @@ type NumberFieldProps = {
   value: number;
   min: number;
   max: number;
+  step?: number;
   prefix?: string;
   onCommit: (value: number) => void;
 };
@@ -13,7 +14,15 @@ type NumberFieldProps = {
  * Number input that lets the user type freely while focused, commits every
  * parseable value as they type, and snaps back to the sanitized value on blur.
  */
-function NumberField({ label, value, min, max, prefix, onCommit }: NumberFieldProps): JSX.Element {
+function NumberField({
+  label,
+  value,
+  min,
+  max,
+  step,
+  prefix,
+  onCommit,
+}: NumberFieldProps): JSX.Element {
   const [draft, setDraft] = useState<string | null>(null);
 
   function handleChange(rawValue: string): void {
@@ -39,6 +48,7 @@ function NumberField({ label, value, min, max, prefix, onCommit }: NumberFieldPr
           type="number"
           min={String(min)}
           max={String(max)}
+          step={step === undefined ? undefined : String(step)}
           value={draft ?? String(value)}
           onFocus={() => setDraft(String(value))}
           onChange={(event) => handleChange(event.target.value)}

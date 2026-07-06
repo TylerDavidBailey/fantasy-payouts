@@ -26,6 +26,12 @@ describe("configFromSearch", () => {
     expect(configFromSearch("?exponent=0").exponent).toBe(minDisplayedExponent);
   });
 
+  it("reads fractional buy-ins, with or without a trailing zero", () => {
+    expect(configFromSearch("?buyIn=5.5").buyIn).toBe(5.5);
+    expect(configFromSearch("?buyIn=5.50").buyIn).toBe(5.5);
+    expect(configFromSearch("?buyIn=5.554").buyIn).toBe(5.55);
+  });
+
   it("sanitizes invalid query string values", () => {
     expect(configFromSearch("?entrants=0&buyIn=-20&paidSpots=300")).toEqual({
       entrants: 1,
@@ -63,8 +69,20 @@ describe("configToSearch", () => {
     );
   });
 
+  it("serializes a fractional buy-in without trailing noise", () => {
+    expect(configToSearch({ entrants: 12, buyIn: 5.55, paidSpots: 4, exponent: 1.1 })).toContain(
+      "buyIn=5.55",
+    );
+  });
+
   it("round-trips through configFromSearch", () => {
     const original = { entrants: 25, buyIn: 20, paidSpots: 5, exponent: 0.8 };
+
+    expect(configFromSearch(`?${configToSearch(original)}`)).toEqual(original);
+  });
+
+  it("round-trips a fractional buy-in through configFromSearch", () => {
+    const original = { entrants: 25, buyIn: 5.55, paidSpots: 5, exponent: 0.8 };
 
     expect(configFromSearch(`?${configToSearch(original)}`)).toEqual(original);
   });
