@@ -13,14 +13,15 @@ function PayoutList({ payouts }: PayoutListProps): JSX.Element {
       {payouts.map((row, index) => (
         <li key={row.place} className={index === 0 ? "payout-row is-top" : "payout-row"}>
           <span className="payout-place">{formatPlace(row.place)}</span>
+          <span className="payout-leader" aria-hidden="true" />
+          <span className="payout-percent">{formatPercent(row.percentage)}</span>
+          <span className="payout-value">{formatCurrency(row.payout)}</span>
           <span className="payout-bar">
             <span
               className="payout-fill"
               style={{ width: `${topPayout === 0 ? 0 : (row.payout / topPayout) * 100}%` }}
             />
           </span>
-          <span className="payout-percent">{formatPercent(row.percentage)}</span>
-          <span className="payout-value">{formatCurrency(row.payout)}</span>
         </li>
       ))}
     </ol>

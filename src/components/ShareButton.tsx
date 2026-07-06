@@ -79,7 +79,7 @@ function ShareButton(): JSX.Element {
   return (
     <button
       type="button"
-      className="share-fab"
+      className="share-button"
       data-status={copyStatus}
       aria-label={copyStatusLabel[copyStatus]}
       onClick={() => {
@@ -87,7 +87,7 @@ function ShareButton(): JSX.Element {
       }}
     >
       {copyStatus === "success" ? <CheckIcon /> : <ShareIcon />}
-      <span className="share-fab-status" role="status">
+      <span className="share-button-label" role="status">
         {copyStatusLabel[copyStatus]}
       </span>
     </button>

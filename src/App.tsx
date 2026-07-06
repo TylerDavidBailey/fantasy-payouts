@@ -70,8 +70,8 @@ function App(): JSX.Element {
         </p>
       </header>
 
-      <section className="panel" aria-label="Payout calculator">
-        <div className="controls-region">
+      <div className="workspace">
+        <section className="controls" aria-label="Settings">
           <div className="controls-fields">
             <NumberField
               label="Entries"
@@ -95,25 +95,24 @@ function App(): JSX.Element {
               max={Math.min(config.entrants, maxPaidSpots)}
               onCommit={updatePaidSpots}
             />
+            <CurveSlider exponent={config.exponent} onCommit={updateExponent} />
           </div>
+        </section>
 
-          <CurveSlider exponent={config.exponent} onCommit={updateExponent} />
-        </div>
-
-        <hr className="panel-divider" aria-hidden="true" />
-
-        <div className="results-region">
-          <div className="panel-heading">
-            <p className="panel-tag">Results</p>
-            <h2>Payouts</h2>
+        <section className="slip" aria-label="Payout calculator">
+          <div className="slip-header">
+            <div>
+              <p className="slip-tag">Results</p>
+              <h2>Payouts</h2>
+            </div>
+            <ShareButton />
           </div>
 
           <SummaryStats result={result} entrants={config.entrants} />
+          <hr className="tear-line" aria-hidden="true" />
           <PayoutList payouts={result.payouts} />
-        </div>
-      </section>
-
-      <ShareButton />
+        </section>
+      </div>
     </main>
   );
 }
