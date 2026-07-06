@@ -12,11 +12,11 @@ describe("formatPayoutMessage", () => {
 
     expect(messageFor(config)).toBe(
       [
-        "$1,000 pool · 10 entries · $100 buy-in",
+        "$1,000 pool - 10 entries - $100 buy-in",
         "",
-        "1st — $544.82",
-        "2nd — $272.91",
-        "3rd — $182.27",
+        "1st: $544.82",
+        "2nd: $272.91",
+        "3rd: $182.27",
       ].join("\n"),
     );
   });
@@ -26,15 +26,15 @@ describe("formatPayoutMessage", () => {
     const lines = messageFor(config).split("\n");
 
     expect(lines).toHaveLength(7);
-    expect(lines[2]).toMatch(/^1st — \$/);
-    expect(lines[6]).toMatch(/^5th — \$/);
+    expect(lines[2]).toMatch(/^1st: \$/);
+    expect(lines[6]).toMatch(/^5th: \$/);
   });
 
   it("uses the singular label for a single entry", () => {
     const config: PayoutConfig = { entrants: 1, buyIn: 25, paidSpots: 1, exponent: 1 };
 
     expect(messageFor(config)).toBe(
-      ["$25 pool · 1 entry · $25 buy-in", "", "1st — $25"].join("\n"),
+      ["$25 pool - 1 entry - $25 buy-in", "", "1st: $25"].join("\n"),
     );
   });
 
@@ -43,7 +43,7 @@ describe("formatPayoutMessage", () => {
     const message = messageFor(config);
 
     expect(message).toContain("$5.50 buy-in");
-    expect(message).toContain("1st — $10.67");
-    expect(message).toContain("2nd — $5.83");
+    expect(message).toContain("1st: $10.67");
+    expect(message).toContain("2nd: $5.83");
   });
 });

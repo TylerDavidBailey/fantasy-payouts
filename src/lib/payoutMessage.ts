@@ -12,10 +12,10 @@ export function formatPayoutMessage(
     `${formatCurrency(result.totalPool)} pool`,
     `${config.entrants} ${entriesLabel}`,
     `${formatCurrency(config.buyIn)} buy-in`,
-  ].join(" · ");
+  ].join(" - ");
 
   const lines = result.payouts.map(
-    (row) => `${formatPlace(row.place)} — ${formatCurrency(row.payout)}`,
+    (row) => `${formatPlace(row.place)}: ${formatCurrency(row.payout)}`,
   );
 
   return `${header}\n\n${lines.join("\n")}`;
