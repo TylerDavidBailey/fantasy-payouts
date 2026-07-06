@@ -105,8 +105,8 @@ describe("App", () => {
     await screen.findByRole("button", { name: /copied/i });
 
     const [message] = writeText.mock.calls[0] as unknown as [string];
-    expect(message.split("\n")[0]).toBe("💰 $1,000 pool · 10 entries · $100 buy-in");
-    expect(message).toMatch(/🥇 1st — \$\d/);
+    expect(message.split("\n")[0]).toBe("$1,000 pool · 10 entries · $100 buy-in");
+    expect(message).toMatch(/1st — \$\d/);
     expect(message.split("\n")).toHaveLength(5);
   });
 

@@ -17,12 +17,12 @@ describe("CopyButton", () => {
   it("copies the provided text and confirms", async () => {
     const writeText = vi.fn(() => Promise.resolve());
     stubClipboard(writeText);
-    render(<CopyButton text={"🥇 1st — $500"} />);
+    render(<CopyButton text="1st — $500" />);
 
     fireEvent.click(screen.getByRole("button", { name: /copy results/i }));
 
     expect(await screen.findByRole("button", { name: /copied/i })).toBeInTheDocument();
-    expect(writeText).toHaveBeenCalledWith("🥇 1st — $500");
+    expect(writeText).toHaveBeenCalledWith("1st — $500");
   });
 
   it("announces the copy result via a live region", async () => {
