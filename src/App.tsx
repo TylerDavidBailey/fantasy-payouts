@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import CopyButton from "./components/CopyButton";
 import CurveSlider from "./components/CurveSlider";
 import NumberField from "./components/NumberField";
 import PayoutList from "./components/PayoutList";
@@ -18,6 +19,7 @@ import {
   sanitizePaidSpots,
   type PayoutConfig,
 } from "./lib/payouts";
+import { formatPayoutMessage } from "./lib/payoutMessage";
 import { configFromSearch, configToSearch } from "./lib/urlState";
 
 function App(): JSX.Element {
@@ -106,7 +108,10 @@ function App(): JSX.Element {
               <p className="slip-tag">Results</p>
               <h2>Payouts</h2>
             </div>
-            <ShareButton />
+            <div className="slip-actions">
+              <CopyButton text={formatPayoutMessage(config, result)} />
+              <ShareButton />
+            </div>
           </div>
 
           <SummaryStats result={result} entrants={config.entrants} />
