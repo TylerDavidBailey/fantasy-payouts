@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import { formatCurrency, formatPercent } from "../lib/format";
 import type { PayoutCalculationResult } from "../lib/payouts";
 

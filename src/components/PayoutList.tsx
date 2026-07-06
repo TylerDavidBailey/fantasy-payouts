@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import { formatCurrency, formatPercent, formatPlace } from "../lib/format";
 import type { PayoutRow } from "../lib/payouts";
 

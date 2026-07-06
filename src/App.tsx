@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type JSX } from "react";
 import CopyButton from "./components/CopyButton";
 import CurveSlider from "./components/CurveSlider";
 import NumberField from "./components/NumberField";

@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import { maxDisplayedExponent, minDisplayedExponent } from "../lib/payouts";
 
 type CurveSliderProps = {
