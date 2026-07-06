@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 
 function payoutRows(): HTMLElement[] {
@@ -91,6 +91,23 @@ describe("App", () => {
 
     expect(payoutRows()[0].textContent).not.toBe(before);
     expect(new URLSearchParams(window.location.search).get("exponent")).toBe("2.00");
+  });
+
+  it("copies the payout table as a chat-friendly message", async () => {
+    const writeText = vi.fn(() => Promise.resolve());
+    Object.defineProperty(window.navigator, "clipboard", {
+      value: { writeText },
+      configurable: true,
+    });
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: /copy results/i }));
+    await screen.findByRole("button", { name: /copied/i });
+
+    const [message] = writeText.mock.calls[0] as unknown as [string];
+    expect(message.split("\n")[0]).toBe("💰 $1,000 pool · 10 entries · $100 buy-in");
+    expect(message).toMatch(/🥇 1st — \$\d/);
+    expect(message.split("\n")).toHaveLength(5);
   });
 
   it("never lets typed payout spots exceed the entrant count", async () => {

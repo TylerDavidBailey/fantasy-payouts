@@ -503,7 +503,14 @@ h1 {
   font-size: 1.0625rem;
 }
 
-/* Share button ----------------------------------------------------------- */
+/* Slip action buttons ---------------------------------------------------- */
+
+.slip-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
 
 .share-button {
   display: inline-flex;

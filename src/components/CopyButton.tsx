@@ -1,12 +1,12 @@
 import { useCopyStatus, type CopyStatus } from "./useCopyStatus";
 
 const copyStatusLabel: Record<CopyStatus, string> = {
-  idle: "Share link",
-  success: "Link copied",
+  idle: "Copy results",
+  success: "Copied",
   error: "Copy failed",
 };
 
-function ShareIcon(): JSX.Element {
+function CopyIcon(): JSX.Element {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -18,11 +18,8 @@ function ShareIcon(): JSX.Element {
       aria-hidden="true"
       focusable="false"
     >
-      <circle cx="18" cy="5" r="3" />
-      <circle cx="6" cy="12" r="3" />
-      <circle cx="18" cy="19" r="3" />
-      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
     </svg>
   );
 }
@@ -44,7 +41,11 @@ function CheckIcon(): JSX.Element {
   );
 }
 
-function ShareButton(): JSX.Element {
+type CopyButtonProps = {
+  text: string;
+};
+
+function CopyButton({ text }: CopyButtonProps): JSX.Element {
   const { copyStatus, copy } = useCopyStatus();
 
   return (
@@ -54,10 +55,10 @@ function ShareButton(): JSX.Element {
       data-status={copyStatus}
       aria-label={copyStatusLabel[copyStatus]}
       onClick={() => {
-        void copy(window.location.href);
+        void copy(text);
       }}
     >
-      {copyStatus === "success" ? <CheckIcon /> : <ShareIcon />}
+      {copyStatus === "success" ? <CheckIcon /> : <CopyIcon />}
       <span className="share-button-label" role="status">
         {copyStatusLabel[copyStatus]}
       </span>
@@ -65,4 +66,4 @@ function ShareButton(): JSX.Element {
   );
 }
 
-export default ShareButton;
+export default CopyButton;
