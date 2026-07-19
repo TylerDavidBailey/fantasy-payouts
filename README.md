@@ -6,9 +6,9 @@ pools, and similar contests. Live at
 
 Set the number of entries, buy-in, and payout spots, then tune how top-heavy
 the prize curve is. Payouts are weighted with `1 / place^k` and always
-distribute the full pool in whole dollars, descending by place. The current
-calculator state lives in the URL, so any configuration can be shared as a
-link.
+distribute the full pool to the cent, descending by place. Results can be
+copied as a chat-ready message, and the current calculator state lives in the
+URL, so any configuration can be shared as a link.
 
 Built with React, TypeScript, and Vite. No backend, no data stored.
 
