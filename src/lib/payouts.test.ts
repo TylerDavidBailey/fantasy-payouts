@@ -5,6 +5,7 @@ import {
   clampPaidSpots,
   defaultConfig,
   maxBuyIn,
+  maxDisplayedExponent,
   maxEntrants,
   maxPaidSpots,
   minDisplayedExponent,
@@ -74,6 +75,8 @@ describe("sanitizers", () => {
 
   it("sanitizes exponent values", () => {
     expect(sanitizeExponent(-5)).toBe(minDisplayedExponent);
+    expect(sanitizeExponent(100)).toBe(maxDisplayedExponent);
+    expect(sanitizeExponent(1.987654)).toBe(1.99);
     expect(sanitizeExponent(Infinity)).toBe(defaultConfig.exponent);
   });
 
