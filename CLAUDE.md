@@ -17,4 +17,4 @@ Client-side payout calculator (React + TypeScript + Vite). No backend; state liv
 
 - All money math is integer cents (converted to dollars at the boundary); payouts must always sum exactly to the pool and never increase by place. Buy-in min is $1.00; every paid place gets at least $1.
 - Sanitize inputs through the `sanitize*` helpers in `src/lib/payouts.ts`; never trust raw values.
-- PR titles and commits use Conventional Commits — releases and Pages deploys are automated from `main` via semantic-release.
+- PR titles and commits use Conventional Commits — release-please maintains a release PR from `main` (merge it to cut a release); Pages deploys run after a successful CI run on `main`.

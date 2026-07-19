@@ -41,6 +41,17 @@ describe("configFromSearch", () => {
     });
   });
 
+  it("falls back to defaults for non-numeric params", () => {
+    expect(configFromSearch("?entrants=abc&buyIn=xyz&paidSpots=nope&exponent=curve")).toEqual(
+      defaultConfig,
+    );
+  });
+
+  it("treats present-but-empty params as missing", () => {
+    expect(configFromSearch("?entrants=&buyIn=&paidSpots=&exponent=")).toEqual(defaultConfig);
+    expect(configFromSearch("?entrants=%20%20").entrants).toBe(defaultConfig.entrants);
+  });
+
   it("clamps default paid spots when URL entrants are below the default", () => {
     expect(configFromSearch("?entrants=1")).toEqual({
       entrants: 1,

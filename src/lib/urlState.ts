@@ -15,7 +15,8 @@ function readNumberParam(
 ): number {
   const raw = params.get(key);
 
-  return raw === null ? sanitize(fallback) : sanitize(Number(raw));
+  // A present-but-empty param means missing, not zero (`Number("") === 0`).
+  return raw === null || raw.trim() === "" ? sanitize(fallback) : sanitize(Number(raw));
 }
 
 export function configFromSearch(search: string): PayoutConfig {

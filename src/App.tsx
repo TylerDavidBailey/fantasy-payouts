@@ -8,6 +8,7 @@ import SummaryStats from "./components/SummaryStats";
 import { formatCurrency } from "./lib/format";
 import {
   calculatePayouts,
+  clampPaidSpots,
   maxBuyIn,
   maxEntrants,
   maxPaidSpots,
@@ -27,23 +28,23 @@ function App(): JSX.Element {
     configFromSearch(window.location.search),
   );
 
-  const result = useMemo(() => calculatePayouts(config), [config]);
+  // config.paidSpots holds the user's intended spots; clamping to the entrant
+  // count happens only here, so a transient low entrant count (mid-typing in
+  // the Entries field, which commits every keystroke) never destroys it.
+  const effectiveConfig = useMemo(
+    () => ({ ...config, paidSpots: clampPaidSpots(config.paidSpots, config.entrants) }),
+    [config],
+  );
+
+  const result = useMemo(() => calculatePayouts(effectiveConfig), [effectiveConfig]);
 
   useEffect(() => {
-    const nextUrl = `${window.location.pathname}?${configToSearch(config)}`;
+    const nextUrl = `${window.location.pathname}?${configToSearch(effectiveConfig)}${window.location.hash}`;
     window.history.replaceState({}, "", nextUrl);
-  }, [config]);
+  }, [effectiveConfig]);
 
   function updateEntrants(value: number): void {
-    setConfig((previous) => {
-      const entrants = sanitizeEntrants(value);
-
-      return {
-        ...previous,
-        entrants,
-        paidSpots: sanitizePaidSpots(previous.paidSpots, entrants),
-      };
-    });
+    setConfig((previous) => ({ ...previous, entrants: sanitizeEntrants(value) }));
   }
 
   function updateBuyIn(value: number): void {
@@ -68,7 +69,8 @@ function App(): JSX.Element {
         <h1>Payout calculator</h1>
         <p className="hero-text">Simple payout splits for leagues and pools.</p>
         <p className="header-meta">
-          {config.entrants} entries · {formatCurrency(config.buyIn)} buy-in
+          {config.entrants} {config.entrants === 1 ? "entry" : "entries"} ·{" "}
+          {formatCurrency(config.buyIn)} buy-in
         </p>
       </header>
 
@@ -93,7 +95,7 @@ function App(): JSX.Element {
             />
             <NumberField
               label="Payout spots"
-              value={config.paidSpots}
+              value={effectiveConfig.paidSpots}
               min={1}
               max={Math.min(config.entrants, maxPaidSpots)}
               onCommit={updatePaidSpots}
@@ -109,7 +111,7 @@ function App(): JSX.Element {
               <h2>Payouts</h2>
             </div>
             <div className="slip-actions">
-              <CopyButton text={formatPayoutMessage(config, result)} />
+              <CopyButton text={formatPayoutMessage(effectiveConfig, result)} />
               <ShareButton />
             </div>
           </div>

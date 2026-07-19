@@ -42,6 +42,36 @@ describe("App", () => {
     expect(new URLSearchParams(window.location.search).get("entrants")).toBe("25");
   });
 
+  it("restores payout spots after retyping a larger entrant count", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const entries = screen.getByLabelText<HTMLInputElement>(/^entries$/i);
+    await user.clear(entries);
+    await user.type(entries, "25");
+
+    expect(payoutRows()).toHaveLength(3);
+    expect(screen.getByLabelText<HTMLInputElement>(/payout spots/i)).toHaveValue(3);
+    expect(new URLSearchParams(window.location.search).get("paidSpots")).toBe("3");
+  });
+
+  it("preserves the URL hash when syncing state", () => {
+    window.history.replaceState({}, "", "/?entrants=8#results");
+
+    render(<App />);
+
+    expect(window.location.hash).toBe("#results");
+    expect(new URLSearchParams(window.location.search).get("entrants")).toBe("8");
+  });
+
+  it("uses the singular label for a single entry", () => {
+    window.history.replaceState({}, "", "/?entrants=1");
+
+    render(<App />);
+
+    expect(screen.getByText("1 entry · $100 buy-in")).toBeInTheDocument();
+  });
+
   it("clamps payout spots when entries drop below them", async () => {
     const user = userEvent.setup();
     render(<App />);

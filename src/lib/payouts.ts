@@ -31,12 +31,9 @@ export const defaultConfig: PayoutConfig = {
   exponent: 1.1,
 };
 
+// Callers pass an already-sanitized entrant count.
 export function clampPaidSpots(paidSpots: number, entrants: number): number {
-  return Math.min(
-    Math.max(1, Math.floor(paidSpots)),
-    sanitizeEntrants(entrants),
-    maxPaidSpots,
-  );
+  return Math.min(Math.max(1, Math.floor(paidSpots)), entrants, maxPaidSpots);
 }
 
 export function clampDisplayedExponent(exponent: number): number {
@@ -48,7 +45,9 @@ export function sanitizeExponent(value: number): number {
     return defaultConfig.exponent;
   }
 
-  return clampDisplayedExponent(value);
+  // Round to the 2-decimal precision the URL serializes so state and the
+  // address bar always agree.
+  return Math.round(clampDisplayedExponent(value) * 100) / 100;
 }
 
 export function sanitizeEntrants(value: number): number {

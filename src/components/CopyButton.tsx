@@ -1,11 +1,5 @@
 import type { JSX } from "react";
-import { useCopyStatus, type CopyStatus } from "./useCopyStatus";
-
-const copyStatusLabel: Record<CopyStatus, string> = {
-  idle: "Copy results",
-  success: "Copied",
-  error: "Copy failed",
-};
+import CopyStatusButton from "./CopyStatusButton";
 
 function CopyIcon(): JSX.Element {
   return (
@@ -25,45 +19,17 @@ function CopyIcon(): JSX.Element {
   );
 }
 
-function CheckIcon(): JSX.Element {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
-
 type CopyButtonProps = {
   text: string;
 };
 
 function CopyButton({ text }: CopyButtonProps): JSX.Element {
-  const { copyStatus, copy } = useCopyStatus();
-
   return (
-    <button
-      type="button"
-      className="share-button"
-      data-status={copyStatus}
-      aria-label={copyStatusLabel[copyStatus]}
-      onClick={() => {
-        void copy(text);
-      }}
-    >
-      {copyStatus === "success" ? <CheckIcon /> : <CopyIcon />}
-      <span className="share-button-label" role="status">
-        {copyStatusLabel[copyStatus]}
-      </span>
-    </button>
+    <CopyStatusButton
+      labels={{ idle: "Copy results", success: "Copied", error: "Copy failed" }}
+      idleIcon={<CopyIcon />}
+      getText={() => text}
+    />
   );
 }
 
