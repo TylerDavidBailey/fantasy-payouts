@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help install dev lint typecheck test test-watch coverage security build preview check clean
+.PHONY: help install dev lint fmt fmt-check typecheck test test-watch coverage security build preview check clean
 
 help: ## Show available targets
 	@printf "Available targets:\n"
@@ -14,6 +14,12 @@ dev: ## Start the Vite development server
 
 lint: ## Run ESLint with warnings treated as failures
 	npm run lint
+
+fmt: ## Format the codebase with Prettier
+	npm run format
+
+fmt-check: ## Fail if any file is not Prettier-formatted
+	npm run format:check
 
 typecheck: ## Run the TypeScript compiler in check mode
 	npm run typecheck

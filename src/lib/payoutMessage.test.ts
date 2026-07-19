@@ -33,9 +33,7 @@ describe("formatPayoutMessage", () => {
   it("uses the singular label for a single entry", () => {
     const config: PayoutConfig = { entrants: 1, buyIn: 25, paidSpots: 1, exponent: 1 };
 
-    expect(messageFor(config)).toBe(
-      ["$25 pool - 1 entry - $25 buy-in", "", "1st: $25"].join("\n"),
-    );
+    expect(messageFor(config)).toBe(["$25 pool - 1 entry - $25 buy-in", "", "1st: $25"].join("\n"));
   });
 
   it("shows cents in the buy-in and payouts when present", () => {

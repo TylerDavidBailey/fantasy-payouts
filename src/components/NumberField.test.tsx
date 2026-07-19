@@ -74,7 +74,7 @@ describe("NumberField", () => {
     Object.defineProperty(input, "value", {
       configurable: true,
       get: () => "1e309",
-      set: () => {},
+      set: () => undefined,
     });
     fireEvent.change(input);
 
@@ -106,9 +106,7 @@ describe("NumberField", () => {
       <NumberField label="Payout spots" value={8} min={1} max={100} onCommit={onCommit} />,
     );
 
-    rerender(
-      <NumberField label="Payout spots" value={5} min={1} max={100} onCommit={onCommit} />,
-    );
+    rerender(<NumberField label="Payout spots" value={5} min={1} max={100} onCommit={onCommit} />);
 
     expect(screen.getByLabelText<HTMLInputElement>(/payout spots/i)).toHaveValue(5);
   });
