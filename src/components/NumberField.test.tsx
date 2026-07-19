@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import NumberField from "./NumberField";
@@ -63,6 +63,22 @@ describe("NumberField", () => {
 
     expect(onCommit).toHaveBeenNthCalledWith(1, 2);
     expect(onCommit).toHaveBeenNthCalledWith(2, 25);
+  });
+
+  it("does not commit drafts that parse to a non-finite number", () => {
+    const { onCommit, input } = renderField();
+
+    // jsdom sanitizes bad number-input drafts to "" before React sees them,
+    // but real browsers pass through syntactically valid values like "1e309"
+    // that overflow to Infinity; force the raw value to exercise the guard.
+    Object.defineProperty(input, "value", {
+      configurable: true,
+      get: () => "1e309",
+      set: () => {},
+    });
+    fireEvent.change(input);
+
+    expect(onCommit).not.toHaveBeenCalled();
   });
 
   it("does not commit while the input is empty", async () => {

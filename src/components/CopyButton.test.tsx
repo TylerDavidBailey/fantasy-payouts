@@ -43,6 +43,33 @@ describe("CopyButton", () => {
     expect(await screen.findByRole("button", { name: /copy failed/i })).toBeInTheDocument();
   });
 
+  it("restarts the confirmation delay when copied again before the reset", async () => {
+    vi.useFakeTimers();
+    stubClipboard(vi.fn(() => Promise.resolve()));
+    render(<CopyButton text="payouts" />);
+    const button = screen.getByRole("button");
+
+    fireEvent.click(button);
+    await act(() => Promise.resolve());
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    fireEvent.click(button);
+    await act(() => Promise.resolve());
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    expect(button).toHaveTextContent("Copied");
+
+    act(() => {
+      vi.advanceTimersByTime(800);
+    });
+
+    expect(button).toHaveTextContent("Copy results");
+  });
+
   it("returns to idle after the confirmation delay", async () => {
     vi.useFakeTimers();
     stubClipboard(vi.fn(() => Promise.resolve()));
